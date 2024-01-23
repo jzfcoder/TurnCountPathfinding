@@ -543,6 +543,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 50
   height: 50
-  terrainHeight: 10
+  terrainHeight: 15
   noise: 1
   mapSource: {fileID: 591361638}
