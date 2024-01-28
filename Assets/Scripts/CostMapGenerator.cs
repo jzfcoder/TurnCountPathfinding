@@ -7,6 +7,7 @@ public class CostMapGenerator
     private int width;
     private int height;
     private float maxRenderHeight;
+    private float noiseScale = 0.1f;
 
     private List<Node> nodes;
     private GameObject mapSource;
@@ -38,6 +39,11 @@ public class CostMapGenerator
         return nodes;
     }
 
+    public void setNoiseScale(float scale)
+    {
+        this.noiseScale = scale;
+    }
+
     public void generateMap(int width, int height, bool noise)
     {
         this.width = width;
@@ -56,8 +62,7 @@ public class CostMapGenerator
                 {
                     cost = Random.Range(0f, 1f);
                 } else {
-                    cost = Mathf.PerlinNoise(x * 0.1f, y * 0.1f);
-                    Debug.Log(cost);
+                    cost = Mathf.PerlinNoise(x * noiseScale, y * noiseScale);
                 }
                 nodes.Add(new Node(position, cost));
             }
