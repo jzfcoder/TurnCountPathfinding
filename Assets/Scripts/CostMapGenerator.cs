@@ -51,6 +51,8 @@ public class CostMapGenerator
         mapSource.name = width + "x" + height + "map";
 
         nodes = new List<Node>();
+        Random.Range(0, 1);
+        float offset = (Random.value * 20000) - 10000;
 
         for(int x = 0; x < width; x++)
         {
@@ -62,7 +64,7 @@ public class CostMapGenerator
                 {
                     cost = Random.Range(0f, 1f);
                 } else {
-                    cost = Mathf.PerlinNoise(x * noiseScale, y * noiseScale);
+                    cost = Mathf.PerlinNoise(x * noiseScale + offset, y * noiseScale + offset);
                 }
                 nodes.Add(new Node(position, cost));
             }

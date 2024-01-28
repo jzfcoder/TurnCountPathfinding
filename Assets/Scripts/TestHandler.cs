@@ -19,6 +19,8 @@ public class TestHandler : MonoBehaviour
     [Range(0, 1)]
     public float noiseScale = 0.1f;
 
+    public Boolean regenerate = false;
+
     public GameObject mapSource;
 
     private int prevWidth;
@@ -38,11 +40,12 @@ public class TestHandler : MonoBehaviour
     {
         if(mapGenerator != null)
         {
-            if(prevHeight != height || prevWidth != width || prevNoiseScale != noiseScale)
+            if(prevHeight != height || prevWidth != width || prevNoiseScale != noiseScale || regenerate)
             {
                 mapGenerator.setNoiseScale(noiseScale);
                 mapGenerator.generateMap(width, height, noise);
                 mapGenerator.renderMap();
+                regenerate = false;
             }
 
             prevHeight = height;
