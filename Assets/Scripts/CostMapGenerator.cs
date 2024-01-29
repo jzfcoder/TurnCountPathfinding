@@ -9,7 +9,7 @@ public class CostMapGenerator
     private float maxRenderHeight;
     private float noiseScale = 0.1f;
 
-    private List<Node> nodes;
+    private Node[,] nodeMap;
     private GameObject mapSource;
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
@@ -30,13 +30,19 @@ public class CostMapGenerator
         this.mapSource = mapSource;
         meshRenderer = mapSource.GetComponent<MeshRenderer>();
         meshFilter = mapSource.GetComponent<MeshFilter>();
+        nodeMap = new Node[width, height];
         generateMap(width, height, noise);
         renderMap();
     }
 
     public List<Node> getNodes()
     {
-        return nodes;
+        List<Node> nodeList = new List<Node>();
+        foreach(Node node in nodeMap)
+        {
+            nodeList.Add(node);
+        }
+        return nodeList;
     }
 
     public void setNoiseScale(float scale)
@@ -50,7 +56,7 @@ public class CostMapGenerator
         this.height = height;
         mapSource.name = width + "x" + height + "map";
 
-        nodes = new List<Node>();
+        nodeMap = new Node[width, height];
         Random.Range(0, 1);
         float offset = (Random.value * 20000) - 10000;
 
@@ -59,14 +65,42 @@ public class CostMapGenerator
             for(int y = 0; y < height; y++)
             {
                 Vector2 position = new Vector2(x, y);
-                float cost = 0;
+                float cost;
                 if(!noise)
                 {
                     cost = Random.Range(0f, 1f);
                 } else {
                     cost = Mathf.PerlinNoise(x * noiseScale + offset, y * noiseScale + offset);
                 }
-                nodes.Add(new Node(position, cost));
+                nodeMap[x, y] = new Node(position, cost);
+            }
+        }
+
+        for(int x = 0; x < width; x++)
+        {
+            for(int y = 0; y < height; y++)
+            {
+                Node currentNode = nodeMap[x, y];
+
+                // adjacent neighbors
+                if (x > 0)
+                    currentNode.addNeighbor(nodeMap[x - 1, y]);
+                if (x < width - 1)
+                    currentNode.addNeighbor(nodeMap[x + 1, y]);
+                if (y > 0)
+                    currentNode.addNeighbor(nodeMap[x, y - 1]);
+                if (y < height - 1)
+                    currentNode.addNeighbor(nodeMap[x, y + 1]);
+
+                // diagonal neighbors
+                if (x > 0 && y > 0)
+                    currentNode.addNeighbor(nodeMap[x - 1, y - 1]); 
+                if (x < width - 1 && y > 0)
+                    currentNode.addNeighbor(nodeMap[x + 1, y - 1]);
+                if (x > 0 && y < height - 1)
+                    currentNode.addNeighbor(nodeMap[x - 1, y + 1]);
+                if (x < width - 1 && y < height - 1)
+                    currentNode.addNeighbor(nodeMap[x + 1, y + 1]);
             }
         }
     }
@@ -75,13 +109,15 @@ public class CostMapGenerator
     public void renderMap()
     {
         Mesh mesh = new Mesh();
+        List<Node> nodes = getNodes();
+        if (nodes.Count == 0)
+            return;
         Vector3[] vertices = new Vector3[nodes.Count];
 
         for(int i = 0; i < nodes.Count; i++)
         {
             float height = nodes[i].getCost() * maxRenderHeight;
             vertices[i] = new Vector3(nodes[i].getPosition().x, height, nodes[i].getPosition().y);
-            
         }
 
         int[] triangles = new int[(width - 1) * (height - 1) * 6];

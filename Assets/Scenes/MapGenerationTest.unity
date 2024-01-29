@@ -436,9 +436,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a68ebde2ea167c248838dcad6ada216c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 50
-  height: 50
-  terrainHeight: 10
+  width: 3
+  height: 3
+  terrainHeight: 3
   noise: 1
-  noiseScale: 0.103
+  noiseScale: 6
+  regenerate: 0
   mapSource: {fileID: 591361638}
+  selectedX: 0
+  selectedY: 0
