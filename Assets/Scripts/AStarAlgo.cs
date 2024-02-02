@@ -9,57 +9,76 @@ public class AStarAlgo
 
     }
 
-    public List<Node> solve(Node startNode, Node goalNode)
+    public List<Node> solve(Node startNode, Node goalNode, float weight)
     {
+        resetF(startNode);
         List<Node> openSet = new List<Node>();
         List<Node> closedSet = new List<Node>();
 
-        startNode.g = 0;
-        startNode.f = getDistance(startNode, goalNode);
-
         openSet.Add(startNode);
 
-        while (openSet.Count > 0)
+        while(openSet.Count > 0)
         {
-            // find node with lowest f in the open set
             Node q = openSet[0];
-            for (int i = 1; i < openSet.Count; i++)
+            for(int i = 1; i < openSet.Count; i++)
             {
-                if (openSet[i].f < q.f || (openSet[i].f == q.f && Random.value < 0.5))
+                if(openSet[i].f < q.f || openSet[i].f == q.f)
                 {
-                    q = openSet[i];
+                    if(openSet[i].h < q.h)
+                    {
+                        q = openSet[i];
+                    }
                 }
             }
-            Debug.Log("selected node " + q.getPosition().ToString());
 
             openSet.Remove(q);
             closedSet.Add(q);
 
+            if(q.samePosition(goalNode))
+            {
+                return traceback(startNode, goalNode);
+            }
+
             foreach (Node successor in q.getNeighbors())
             {
-                if (successor.samePosition(goalNode))
+                if (successor == null || closedSet.Contains(successor))
                 {
-                    closedSet.Add(successor);
-                    return closedSet;
+                    continue;
                 }
 
-                successor.g = q.g + getDistance(startNode, successor);
-                successor.h = getDistance(successor, goalNode);
-
-                successor.f = successor.g + successor.h;
-
-                if (!ifLowerFExists(openSet, successor) && !ifLowerFExists(closedSet, successor))
+                // successor.g = q.g + getDistance(successor, q) + (successor.getCost() * weight);
+                float newG = q.g + getDistance(successor, q) + (successor.getCost() * weight);
+                if(newG < successor.g || !openSet.Contains(successor))
                 {
-                    openSet.Add(successor);
+                    successor.g = newG;
+                    successor.h = getDistance(successor, goalNode);
+                    successor.parent = q;
+
+                    if(!openSet.Contains(successor))
+                    {
+                        openSet.Add(successor);
+                    }
                 }
-                // Debug.Log("g: " + successor.g + " h: " + successor.h + " f: " + successor.f);
             }
-            closedSet.Add(q);
-            // Debug.Log("open set count " + openSet.Count);
         }
 
-        // No path found
         return null;
+    }
+
+    private List<Node> traceback(Node startNode, Node goalNode)
+    {
+        List<Node> path = new List<Node>();
+        Node current = goalNode;
+
+        while (!current.samePosition(startNode))
+        {
+            path.Add(current);
+            current = current.parent;
+        }
+        path.Add(current);
+        path.Reverse();
+
+        return path;
     }
 
     private float getDistance(Node a, Node b)
@@ -70,7 +89,7 @@ public class AStarAlgo
         return outDist;
     }
 
-    private bool ifLowerFExists(List<Node> set, Node node)
+    private bool lowerFExists(List<Node> set, Node node)
     {
         for(int i = 0; i < set.Count; i++)
         {
@@ -80,5 +99,31 @@ public class AStarAlgo
             }
         }
         return false;
+    }
+
+    public void resetF(Node start)
+    {
+        Queue<Node> queue = new Queue<Node>();
+        HashSet<Node> visited = new HashSet<Node>();
+
+        queue.Enqueue(start);
+        visited.Add(start);
+
+        while(queue.Count > 0)
+        {
+            Node currentNode = queue.Dequeue();
+
+            currentNode.g = 0;
+            currentNode.h = 0;
+
+            foreach (Node n in currentNode.getNeighbors())
+            {
+                if (!visited.Contains(n))
+                {
+                    queue.Enqueue(n);
+                    visited.Add(n);
+                }
+            }
+        }
     }
 }

@@ -13,21 +13,23 @@ public class CostMapGenerator
     private GameObject mapSource;
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
+    private GameObject plane;
 
     public CostMapGenerator(GameObject mapSource)
-        : this(10, 10, 1, mapSource, false)
+        : this(10, 10, 1, mapSource, false, null)
     {
     }
 
     public CostMapGenerator(int width, int height, GameObject mapSource)
-        : this(width, height, 1, mapSource, false)
+        : this(width, height, 1, mapSource, false, null)
     {
 }
 
-    public CostMapGenerator(int width, int height, float maxRenderHeight, GameObject mapSource, bool noise)
+    public CostMapGenerator(int width, int height, float maxRenderHeight, GameObject mapSource, bool noise, GameObject plane)
     {
         this.maxRenderHeight = maxRenderHeight;
         this.mapSource = mapSource;
+        this.plane = plane;
         meshRenderer = mapSource.GetComponent<MeshRenderer>();
         meshFilter = mapSource.GetComponent<MeshFilter>();
         nodeMap = new Node[width, height];
@@ -105,8 +107,59 @@ public class CostMapGenerator
         }
     }
 
-    //public IEnumerator renderMap()
+    public void deleteSelected(int x, int y)
+    {
+        Node n = nodeMap[x, y];
+        List<Node> neighbors = n.getNeighbors();
+        for (int i = 0; i < neighbors.Count; i++)
+        {
+            List<Node> neighborNeighbors = neighbors[i].getNeighbors();
+            for (int j = 0; j < neighborNeighbors.Count; j++)
+            {
+                Node node = neighborNeighbors[j];
+                if(node.getPosition().x == x && node.getPosition().y == y)
+                {
+                    neighbors[i].getNeighbors().Remove(node);
+                }
+            }
+        }
+        n = null;
+        nodeMap[x, y] = null;
+        renderMap();
+    }
+
     public void renderMap()
+    {
+        renderTerrain();
+        renderGrid();
+    }
+
+    private void renderGrid()
+    {
+        List<Node> nodes = getNodes();
+        if (nodes.Count == 0) return;
+
+        foreach (Transform child in mapSource.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+        foreach (Node n in nodes)
+        {
+            if (n == null) continue;
+            GameObject cell = GameObject.Instantiate(plane, new Vector3(
+                n.getPosition().x - width,
+                0,
+                n.getPosition().y
+                ), new Quaternion(0, 0, 0, 0), mapSource.transform);
+            MeshRenderer renderer = cell.GetComponent<MeshRenderer>();
+            renderer.material.SetColor("_Color", new Color(1 - n.getCost(), 1 - n.getCost(), 1 - n.getCost()));
+            cell.SetActive(true);
+        }
+    }
+
+    //public IEnumerator renderMap()
+    private void renderTerrain()
     {
         Mesh mesh = new Mesh();
         List<Node> nodes = getNodes();
@@ -116,6 +169,11 @@ public class CostMapGenerator
 
         for(int i = 0; i < nodes.Count; i++)
         {
+            if (nodes[i] == null)
+            {
+                vertices[i] = new Vector3(0, 0, 0);
+                continue;
+            }
             float height = nodes[i].getCost() * maxRenderHeight;
             vertices[i] = new Vector3(nodes[i].getPosition().x, height, nodes[i].getPosition().y);
         }

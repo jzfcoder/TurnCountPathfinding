@@ -6,7 +6,15 @@ public class Node
 {
     public float g;
     public float h;
-    public float f;
+    public float f
+    {
+        get
+        {
+            return g + h;
+        }
+    }
+
+    public Node parent;
 
     private Vector2 position;
     private float cost;
