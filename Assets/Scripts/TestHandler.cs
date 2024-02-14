@@ -23,6 +23,7 @@ public class TestHandler : MonoBehaviour
 	public GameObject mapSource;
 	public GameObject tile;
 	public LineRenderer lineRenderer;
+	public LineRenderer mapLineRenderer;
 
 	private int prevWidth;
 	private int prevHeight;
@@ -144,13 +145,19 @@ public class TestHandler : MonoBehaviour
 		if(path != null)
 		{
 			Vector3[] positions = new Vector3[path.Count];
+			Vector3[] mapPositions = new Vector3[path.Count];
+			mapLineRenderer.positionCount = path.Count;
 			lineRenderer.positionCount = path.Count;
 			for(int i = 0; i < path.Count - 1; i++)
 			{
-				positions[i] = new Vector3(path[i].getPosition().x - width, 0.1f, path[i].getPosition().y);
+				positions[i] = new Vector3(path[i].getPosition().x - width - 10, 0.1f, path[i].getPosition().y);
 				positions[i + 1] = new Vector3(path[i + 1].getPosition().x - width - 10, 0.1f, path[i + 1].getPosition().y);
+
+				mapPositions[i] = new Vector3(path[i].getPosition().x, path[i].getCost() * terrainHeight + 1, path[i].getPosition().y);
+				mapPositions[i + 1] = new Vector3(path[i + 1].getPosition().x, path[i].getCost() * terrainHeight + 1, path[i + 1].getPosition().y);
 			}
 			lineRenderer.SetPositions(positions);
+			mapLineRenderer.SetPositions(mapPositions);
 		}
     }
 
