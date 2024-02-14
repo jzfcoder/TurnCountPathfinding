@@ -22,6 +22,7 @@ public class TestHandler : MonoBehaviour
 
 	public GameObject mapSource;
 	public GameObject tile;
+	public LineRenderer lineRenderer;
 
 	private int prevWidth;
 	private int prevHeight;
@@ -54,6 +55,7 @@ public class TestHandler : MonoBehaviour
 		}
 	}
 
+	[HideInInspector]
 	public float weightOfCost = 2f;
 	public void calculate()
 	{
@@ -64,6 +66,7 @@ public class TestHandler : MonoBehaviour
 			Debug.Log(path[i].getPosition().ToString());
 		}
 		*/
+		drawPath();
 	}
 
 	public void regenerate()
@@ -83,9 +86,11 @@ public class TestHandler : MonoBehaviour
 		return mapGenerator;
 	}
 
+	[HideInInspector]
 	public int selectedX = 0;
+	[HideInInspector]
 	public int selectedY = 0;
-	[SerializeField]
+	[HideInInspector]
 	public double selectedF = 0;
 	public void deleteSelected()
     {
@@ -134,6 +139,21 @@ public class TestHandler : MonoBehaviour
 		renderPath();
 	}
 
+	private void drawPath()
+    {
+		if(path != null)
+		{
+			Vector3[] positions = new Vector3[path.Count];
+			lineRenderer.positionCount = path.Count;
+			for(int i = 0; i < path.Count - 1; i++)
+			{
+				positions[i] = new Vector3(path[i].getPosition().x - width, 0.1f, path[i].getPosition().y);
+				positions[i + 1] = new Vector3(path[i + 1].getPosition().x - width - 10, 0.1f, path[i + 1].getPosition().y);
+			}
+			lineRenderer.SetPositions(positions);
+		}
+    }
+
 	private void renderPath()
 	{
 		if(path != null)
@@ -147,8 +167,8 @@ public class TestHandler : MonoBehaviour
 					);
 				
 				Gizmos.DrawLine(
-					new Vector3(path[i].getPosition().x - width, 0.1f, path[i].getPosition().y),
-					new Vector3(path[i + 1].getPosition().x - width, 0.1f, path[i + 1].getPosition().y)
+					new Vector3(path[i].getPosition().x - width - 10, 0.1f, path[i].getPosition().y),
+					new Vector3(path[i + 1].getPosition().x - width - 10, 0.1f, path[i + 1].getPosition().y)
 					);
 			}
 		}
@@ -166,36 +186,43 @@ class HandlerEditor : Editor
 		var handler = (TestHandler)target;
 		if (handler == null) return;
 
-		if (GUILayout.Button("+x"))
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("selected:");
+		if (GUILayout.Button("+"))
 		{
 			handler.selectedX++;
 		}
 
-		if (GUILayout.Button("-x"))
+		if (GUILayout.Button("-"))
 		{
 			handler.selectedX--;
 		}
 
-		if (GUILayout.Button("+y"))
+		GUILayout.Label("x: " + handler.selectedX.ToString());
+
+		if (GUILayout.Button("+"))
 		{
 			handler.selectedY++;
 		}
 
-		if (GUILayout.Button("-y"))
+		if (GUILayout.Button("-"))
 		{
 			handler.selectedY--;
 		}
+		GUILayout.Label("y: " + handler.selectedY.ToString());
 
+		GUILayout.Label("F: " + handler.selectedF.ToString());
 		if (GUILayout.Button("delete selected"))
         {
 			handler.deleteSelected();
         }
 
-		if (GUILayout.Button("calculate"))
-		{
-			handler.calculate();
-		}
+		GUILayout.EndHorizontal();
 
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("weightOfCost");
+		handler.weightOfCost = GUILayout.HorizontalSlider(handler.weightOfCost, 0f, 10f);
+		GUILayout.Label(handler.weightOfCost.ToString("0.0000"));
 		if (GUILayout.Button("resetF"))
 		{
 			handler.getAStarAlgo().resetF(handler.getMapGenerator().getNodes()[0]);
@@ -205,6 +232,12 @@ class HandlerEditor : Editor
 		{
 			handler.regenerate();
 		}
+
+		if (GUILayout.Button("calculate"))
+		{
+			handler.calculate();
+		}
+		GUILayout.EndHorizontal();
 	}
 }
 #endif

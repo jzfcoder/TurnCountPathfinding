@@ -148,7 +148,7 @@ public class CostMapGenerator
         {
             if (n == null) continue;
             GameObject cell = GameObject.Instantiate(plane, new Vector3(
-                n.getPosition().x - width,
+                n.getPosition().x - width - 10,
                 0,
                 n.getPosition().y
                 ), new Quaternion(0, 0, 0, 0), mapSource.transform);
