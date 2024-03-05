@@ -9,11 +9,24 @@ public class AStarAlgo
 
     }
 
-    public List<Node> solve(Node startNode, Node goalNode, float weight)
+    public List<Node> solve(Node startNode, Node goalNode, float costWeight)
     {
-        resetF(startNode);
+        return solve(startNode, goalNode, costWeight, 0);
+    }
+
+    public List<Node> solve(Node startNode, Node goalNode, float costWeight, float turnWeight)
+    {
         List<Node> openSet = new List<Node>();
         List<Node> closedSet = new List<Node>();
+
+        // Node prevQ = startNode;
+        // int prevDirection = 0;
+        /*  1  2  3
+         *   \ | /
+         * 4 - n - 5
+         *   / | \
+         *  5  6  7
+         */
 
         openSet.Add(startNode);
 
@@ -31,6 +44,7 @@ public class AStarAlgo
                 }
             }
 
+            // prevDirection = getDirection(prevQ, q);
             openSet.Remove(q);
             closedSet.Add(q);
 
@@ -39,15 +53,19 @@ public class AStarAlgo
                 return traceback(startNode, goalNode);
             }
 
+            float newG;
+            // int direction = 0;
             foreach (Node successor in q.getNeighbors())
             {
                 if (successor == null || closedSet.Contains(successor))
                 {
                     continue;
                 }
+                // TODO: CALCULATE DIRECTION
 
                 // successor.g = q.g + getDistance(successor, q) + (successor.getCost() * weight);
-                float newG = q.g + getDistance(successor, q) + (successor.getCost() * weight);
+                // newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight) + (calculateTurnCost(prevDirection, direction) * turnWeight);
+                newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight);
                 if(newG < successor.g || !openSet.Contains(successor))
                 {
                     successor.g = newG;
@@ -63,6 +81,16 @@ public class AStarAlgo
         }
 
         return null;
+    }
+    
+    private int getDirection(Node prev, Node next)
+    {
+        return 1;
+    }
+
+    private float calculateTurnCost(int prevDir, int dir)
+    {
+        return 1f;
     }
 
     private List<Node> traceback(Node startNode, Node goalNode)

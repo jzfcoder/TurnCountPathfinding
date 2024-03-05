@@ -79,6 +79,7 @@ public class TestRunner : MonoBehaviour
 			currentWidth++;
 			currentHeight++;
 			regenerate(currentWidth, currentHeight);
+			aStarAlgo.resetF(mapGenerator.getNodes()[0]);
 			stopwatch.Start();
 			calculate();
 			stopwatch.Stop();
