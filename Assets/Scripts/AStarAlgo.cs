@@ -91,7 +91,7 @@ public class AStarAlgo
 
     private float calculateTurnCost(float prevDir, float dir)
     {
-        return dir - prevDir;
+        return Mathf.Abs(dir - prevDir);
     }
 
     private List<Node> traceback(Node startNode, Node goalNode)
