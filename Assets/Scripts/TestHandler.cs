@@ -1,19 +1,19 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 public class TestHandler : MonoBehaviour
 {
 	[Range(1, 100)]
-	public int width = 100;
+	public int startWidth = 25;
 
 	[Range(1, 100)]
-	public int height = 100;
+	public int startHeight = 25;
 
 	[Range(1, 50)]
-	public int terrainHeight = 10;
+	public int terrainHeight = 3;
 
 	public Boolean noise = false;
 
@@ -35,7 +35,7 @@ public class TestHandler : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		mapGenerator = new CostMapGenerator(width, height, terrainHeight, mapSource, noise, tile);
+		mapGenerator = new CostMapGenerator(startWidth, startHeight, terrainHeight, mapSource, noise, tile);
 		mapGenerator.setNoiseScale(noiseScale / 20f);
 		aStarAlgo = new AStarAlgo();
 	}
@@ -45,13 +45,13 @@ public class TestHandler : MonoBehaviour
 	{
 		if(mapGenerator != null)
 		{
-			if(prevHeight != height || prevWidth != width || prevNoiseScale != noiseScale)
+			if(prevHeight != startHeight || prevWidth != startWidth || prevNoiseScale != noiseScale)
 			{
 				regenerate();
 			}
 
-			prevHeight = height;
-			prevWidth = width;
+			prevHeight = startHeight;
+			prevWidth = startWidth;
 			prevNoiseScale = noiseScale;
 		}
 	}
@@ -73,7 +73,7 @@ public class TestHandler : MonoBehaviour
 	public void regenerate()
 	{
 		mapGenerator.setNoiseScale(noiseScale / 20f);
-		mapGenerator.generateMap(width, height, noise);
+		mapGenerator.generateMap(startWidth, startHeight, noise);
 		mapGenerator.renderMap();
 	}
 
@@ -130,7 +130,7 @@ public class TestHandler : MonoBehaviour
 					));
 
 					Gizmos.DrawCube(
-						new Vector3(x - width, 0, y),
+						new Vector3(x - startWidth, 0, y),
 						new Vector3(0.1f, 0.1f, 0.1f)
 						);
 				}
@@ -150,8 +150,8 @@ public class TestHandler : MonoBehaviour
 			lineRenderer.positionCount = path.Count;
 			for(int i = 0; i < path.Count - 1; i++)
 			{
-				positions[i] = new Vector3(path[i].getPosition().x - width - 10, 0.1f, path[i].getPosition().y);
-				positions[i + 1] = new Vector3(path[i + 1].getPosition().x - width - 10, 0.1f, path[i + 1].getPosition().y);
+				positions[i] = new Vector3(path[i].getPosition().x - startWidth - 10, 0.1f, path[i].getPosition().y);
+				positions[i + 1] = new Vector3(path[i + 1].getPosition().x - startWidth - 10, 0.1f, path[i + 1].getPosition().y);
 
 				mapPositions[i] = new Vector3(path[i].getPosition().x, path[i].getCost() * terrainHeight + 1, path[i].getPosition().y);
 				mapPositions[i + 1] = new Vector3(path[i + 1].getPosition().x, path[i].getCost() * terrainHeight + 1, path[i + 1].getPosition().y);
@@ -174,13 +174,14 @@ public class TestHandler : MonoBehaviour
 					);
 				
 				Gizmos.DrawLine(
-					new Vector3(path[i].getPosition().x - width - 10, 0.1f, path[i].getPosition().y),
-					new Vector3(path[i + 1].getPosition().x - width - 10, 0.1f, path[i + 1].getPosition().y)
+					new Vector3(path[i].getPosition().x - startWidth - 10, 0.1f, path[i].getPosition().y),
+					new Vector3(path[i + 1].getPosition().x - startWidth - 10, 0.1f, path[i + 1].getPosition().y)
 					);
 			}
 		}
 	}
 }
+
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(TestHandler))]
@@ -245,6 +246,21 @@ class HandlerEditor : Editor
 			handler.calculate();
 		}
 		GUILayout.EndHorizontal();
+
+		if (GUILayout.Button("write to csv"))
+        {
+			String filePath = Application.dataPath + "/data/" + "output.csv";
+			if(File.Exists(filePath))
+			{
+				File.Delete(filePath);
+			}
+			StreamWriter writer = new StreamWriter(filePath);
+			writer.WriteLine("size,time,eval");
+			writer.WriteLine("size,time,eval");
+
+			writer.Flush();
+			writer.Close();
+        }
 	}
 }
 #endif

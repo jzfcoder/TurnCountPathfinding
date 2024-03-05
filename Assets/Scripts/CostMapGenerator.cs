@@ -130,7 +130,14 @@ public class CostMapGenerator
 
     public void renderMap()
     {
-        renderTerrain();
+        renderMap(true);
+    }
+    public void renderMap(bool rTerrain)
+    {
+        if(rTerrain)
+        {
+            renderTerrain();
+        }
         renderGrid();
     }
 

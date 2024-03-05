@@ -647,7 +647,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 333cab9532d43b0408f1bc59920f466c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handler: {fileID: 1319836872}
+  handler: {fileID: 0}
 --- !u!1 &1096342719
 GameObject:
   m_ObjectHideFlags: 0
@@ -793,7 +793,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1319836871}
-  - component: {fileID: 1319836872}
+  - component: {fileID: 1319836873}
   m_Layer: 0
   m_Name: Handler
   m_TagString: Untagged
@@ -818,7 +818,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1319836872
+--- !u!114 &1319836873
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -827,11 +827,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1319836870}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a68ebde2ea167c248838dcad6ada216c, type: 3}
+  m_Script: {fileID: 11500000, guid: 6f2d34d2327e3ed458c4cfc686d1d74f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 25
-  height: 25
+  startWidth: 5
+  startHeight: 5
+  endWidth: 100
+  endHeight: 100
   terrainHeight: 3
   noise: 1
   noiseScale: 6
@@ -839,7 +841,5 @@ MonoBehaviour:
   tile: {fileID: 935865435}
   lineRenderer: {fileID: 270686293}
   mapLineRenderer: {fileID: 1096342721}
+  filePath: C:/Users/timfl/Desktop/APResearchProject/Assets/data/output.csv
   weightOfCost: 2
-  selectedX: 1
-  selectedY: 1
-  selectedF: 0

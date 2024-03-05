@@ -16,7 +16,7 @@ public class CameraHandler : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.A))
         {
-            gameObject.transform.position = new Vector3(-handler.width / 2 - 10, 25, handler.height / 2);
+            gameObject.transform.position = new Vector3(-handler.startWidth / 2 - 10, 25, handler.startHeight / 2);
             gameObject.transform.rotation = Quaternion.Euler(90, 0, 0);
         } else if(Input.GetKeyDown(KeyCode.D))
         {

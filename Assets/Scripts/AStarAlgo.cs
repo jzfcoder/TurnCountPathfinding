@@ -83,6 +83,19 @@ public class AStarAlgo
 
     private float getDistance(Node a, Node b)
     {
+        return getExactDistance(a, b);
+    }
+
+    private float getManhattanDistance(Node a, Node b)
+    {
+        float xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
+        float yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
+        float outDist = (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
+        return outDist;
+    }
+
+    private float getExactDistance(Node a, Node b)
+    {
         float xDist = (a.getPosition().x - b.getPosition().x);
         float yDist = (a.getPosition().y - b.getPosition().y);
         float outDist = Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
