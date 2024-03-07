@@ -19,8 +19,8 @@ public class AStarAlgo
         List<Node> openSet = new List<Node>();
         List<Node> closedSet = new List<Node>();
 
-        // Node prevQ = startNode;
-        // int prevDirection = 0;
+        Node prevQ = startNode;
+        float prevDirection = 0;
         /*  1  2  3
          *   \ | /
          * 4 - n - 5
@@ -44,7 +44,7 @@ public class AStarAlgo
                 }
             }
 
-            // prevDirection = getDirection(prevQ, q);
+            prevDirection = getDirection(prevQ, q);
             openSet.Remove(q);
             closedSet.Add(q);
 
@@ -54,18 +54,17 @@ public class AStarAlgo
             }
 
             float newG;
-            // int direction = 0;
+            float direction = 0;
             foreach (Node successor in q.getNeighbors())
             {
                 if (successor == null || closedSet.Contains(successor))
                 {
                     continue;
                 }
-                // TODO: CALCULATE DIRECTION
+                direction = getDirection(q, successor);
 
                 // successor.g = q.g + getDistance(successor, q) + (successor.getCost() * weight);
-                // newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight) + (calculateTurnCost(prevDirection, direction) * turnWeight);
-                newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight);
+                newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight) + (calculateTurnCost(prevDirection, direction) * turnWeight);
                 if(newG < successor.g || !openSet.Contains(successor))
                 {
                     successor.g = newG;
@@ -83,14 +82,16 @@ public class AStarAlgo
         return null;
     }
     
-    private int getDirection(Node prev, Node next)
-    {
-        return 1;
+    private float getDirection(Node prev, Node next)
+    { 
+        xDist = next.getPosition().x - prev.getPosition().x;
+        yDist = next.getPosition().y - prev.getPosition().y;
+        return Mathf.Atan(yDist / xDist);
     }
 
-    private float calculateTurnCost(int prevDir, int dir)
+    private float calculateTurnCost(float prevDir, float dir)
     {
-        return 1f;
+        return Mathf.Abs(dir - prevDir);
     }
 
     private List<Node> traceback(Node startNode, Node goalNode)
@@ -114,19 +115,22 @@ public class AStarAlgo
         return getExactDistance(a, b);
     }
 
+    private float xDist;
+    private float yDist;
+    private float outDist;
     private float getManhattanDistance(Node a, Node b)
     {
-        float xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
-        float yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
-        float outDist = (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
+        xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
+        yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
+        outDist = (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
         return outDist;
     }
 
     private float getExactDistance(Node a, Node b)
     {
-        float xDist = (a.getPosition().x - b.getPosition().x);
-        float yDist = (a.getPosition().y - b.getPosition().y);
-        float outDist = Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
+        xDist = (a.getPosition().x - b.getPosition().x);
+        yDist = (a.getPosition().y - b.getPosition().y);
+        outDist = Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
         return outDist;
     }
 
