@@ -830,16 +830,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f2d34d2327e3ed458c4cfc686d1d74f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startWidth: 5
-  startHeight: 5
-  endWidth: 100
-  endHeight: 100
+  startWidth: 4
+  startHeight: 4
+  endWidth: 50
+  endHeight: 50
+  numTrials: 10
   terrainHeight: 3
-  noise: 1
+  noise: 0
   noiseScale: 6
   mapSource: {fileID: 591361638}
   tile: {fileID: 935865435}
   lineRenderer: {fileID: 270686293}
   mapLineRenderer: {fileID: 1096342721}
+  isDebugging: 0
   filePath: C:/Users/timfl/Desktop/APResearchProject/Assets/data/output.csv
   weightOfCost: 2
+  weightOfTurn: 0
+  pe_cellWeight: 1
+  pe_costWeight: 1
+  pe_turnWeight: 1

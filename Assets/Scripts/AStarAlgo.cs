@@ -44,7 +44,7 @@ public class AStarAlgo
                 }
             }
 
-            prevDirection = getDirection(prevQ, q);
+            // prevDirection = getDirection(prevQ, q);
             openSet.Remove(q);
             closedSet.Add(q);
 
@@ -54,17 +54,18 @@ public class AStarAlgo
             }
 
             float newG;
-            float direction = 0;
+            float currentDirection = 0;
             foreach (Node successor in q.getNeighbors())
             {
                 if (successor == null || closedSet.Contains(successor))
                 {
                     continue;
                 }
-                direction = getDirection(q, successor);
+                currentDirection = getDirection(q, successor);
 
                 // successor.g = q.g + getDistance(successor, q) + (successor.getCost() * weight);
-                newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight) + (calculateTurnCost(prevDirection, direction) * turnWeight);
+                newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight) + (calculateTurnCost(prevDirection, currentDirection) * turnWeight);
+                // newG = q.g + getDistance(successor, q) + (successor.getCost() * costWeight);
                 if(newG < successor.g || !openSet.Contains(successor))
                 {
                     successor.g = newG;
@@ -82,10 +83,14 @@ public class AStarAlgo
         return null;
     }
     
-    private float getDirection(Node prev, Node next)
-    { 
-        xDist = next.getPosition().x - prev.getPosition().x;
-        yDist = next.getPosition().y - prev.getPosition().y;
+    public float getDirection(Node prev, Node next)
+    {
+        if(prev == null)
+        {
+            return -1;
+        }
+        float xDist = next.getPosition().x - prev.getPosition().x;
+        float yDist = next.getPosition().y - prev.getPosition().y;
         return Mathf.Atan(yDist / xDist);
     }
 
@@ -115,22 +120,19 @@ public class AStarAlgo
         return getExactDistance(a, b);
     }
 
-    private float xDist;
-    private float yDist;
-    private float outDist;
     private float getManhattanDistance(Node a, Node b)
     {
-        xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
-        yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
-        outDist = (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
+        float xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
+        float yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
+        float outDist = (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
         return outDist;
     }
 
     private float getExactDistance(Node a, Node b)
     {
-        xDist = (a.getPosition().x - b.getPosition().x);
-        yDist = (a.getPosition().y - b.getPosition().y);
-        outDist = Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
+        float xDist = (a.getPosition().x - b.getPosition().x);
+        float yDist = (a.getPosition().y - b.getPosition().y);
+        float outDist = Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
         return outDist;
     }
 

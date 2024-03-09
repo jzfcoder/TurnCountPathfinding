@@ -19,6 +19,9 @@ public class TestRunner : MonoBehaviour
 	[Range(1, 100)]
 	public int endHeight = 25;
 
+	[Range(1, 100)]
+	public int numTrials = 25;
+
 	[Range(1, 50)]
 	public int terrainHeight = 3;
 
@@ -31,6 +34,7 @@ public class TestRunner : MonoBehaviour
 	public GameObject tile;
 	public LineRenderer lineRenderer;
 	public LineRenderer mapLineRenderer;
+	public bool isDebugging = false;
 
 	[SerializeField]
 	String filePath = Application.dataPath + "/data/" + "output.csv";
@@ -43,6 +47,7 @@ public class TestRunner : MonoBehaviour
 	private StreamWriter writer;
 	private int currentWidth;
 	private int currentHeight;
+	private int currentTrial;
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -52,8 +57,9 @@ public class TestRunner : MonoBehaviour
 		stopwatch = new Stopwatch();
 		currentHeight = startHeight;
 		currentWidth = startWidth;
+		currentTrial = 1;
 
-		filePath = Application.dataPath + "/data/" + startWidth + "to" + endWidth + "noise" + (noise ? noiseScale : -1) + ".csv";
+		filePath = Application.dataPath + "/data/" + startWidth + "to" + endWidth + "noise" + (noise ? noiseScale : -1) + "turnWeight" + weightOfTurn + ".csv";
 
 		if(File.Exists(filePath))
 		{
@@ -73,19 +79,25 @@ public class TestRunner : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if(mapGenerator != null && path == null && currentWidth < endWidth)
+		if(currentWidth == endWidth && currentTrial < numTrials)
 		{
-			
+			currentTrial++;
+			currentWidth = startWidth;
+			currentHeight = startHeight;
+		}
+		if(mapGenerator != null && path == null && currentWidth < endWidth && !isDebugging)
+		{
 			currentWidth++;
 			currentHeight++;
 			regenerate(currentWidth, currentHeight);
-			aStarAlgo.resetF(mapGenerator.getNodes()[0]);
+			resetF();
 			stopwatch.Start();
 			calculate();
 			stopwatch.Stop();
-			recordData(currentWidth, stopwatch.ElapsedMilliseconds);
+			drawPath();
+			recordData(currentWidth, stopwatch.ElapsedMilliseconds, calculateEfficiency(path));
 			path = null;
-			if(currentWidth == endWidth)
+			if(currentWidth == endWidth && currentTrial == numTrials)
             {
 				saveData = true;
             }
@@ -99,15 +111,22 @@ public class TestRunner : MonoBehaviour
         }
 	}
 
+	public void resetF()
+    {
+		aStarAlgo.resetF(mapGenerator.getNodes()[0]);
+    }
+
 	[HideInInspector]
 	public float weightOfCost = 2f;
+
+	[HideInInspector]
+	public float weightOfTurn = 2f;
 	public void calculate()
 	{
-		path = aStarAlgo.solve(mapGenerator.getNodes()[0], mapGenerator.getNodes()[mapGenerator.getNodes().Count - 1], weightOfCost);
-		drawPath();
+		path = aStarAlgo.solve(mapGenerator.getNodes()[0], mapGenerator.getNodes()[mapGenerator.getNodes().Count - 1], weightOfCost, weightOfTurn);
 	}
 
-	private void drawPath()
+	public void drawPath()
     {
 		if(path != null)
 		{
@@ -130,10 +149,31 @@ public class TestRunner : MonoBehaviour
 		mapGenerator.renderMap(false);
 	}
 
-	public void recordData(double width, double time)
+	public void recordData(double width, double time, double pathEfficiency)
     {
-        UnityEngine.Debug.Log(width + ", " + time);
-		writer.WriteLine(width + "," + time);
+        UnityEngine.Debug.Log(width + ", " + time + ", " + pathEfficiency);
+		writer.WriteLine(width + "," + time + "," + pathEfficiency);
+    }
+
+	public double pe_cellWeight = 1;
+	public double pe_costWeight = 1;
+	public double pe_turnWeight = 1;
+	private float prevDir = 0;
+	private float currentDir = 0;
+	private double calculateEfficiency(List<Node> path)
+    {
+		double sum = 0;
+		Node prevN;
+		Node n = null;
+		for(int i = 0; i < path.Count; i++)
+        {
+			prevN = n;
+			n = path[i];
+			prevDir = currentDir;
+			currentDir = aStarAlgo.getDirection(prevN, n);
+			sum += (n.getCost() * pe_costWeight) + pe_cellWeight + (i <= 1 ? (Math.Abs(currentDir - prevDir) * pe_turnWeight) : 0);
+        }
+		return sum;
     }
 }
 
@@ -153,6 +193,26 @@ class RunnerEditor : Editor
 		GUILayout.Label("weightOfCost");
 		handler.weightOfCost = GUILayout.HorizontalSlider(handler.weightOfCost, 0f, 10f);
 		GUILayout.Label(handler.weightOfCost.ToString("0.0000"));
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("weightOfTurn");
+		handler.weightOfTurn = GUILayout.HorizontalSlider(handler.weightOfTurn, 0f, 10f);
+		GUILayout.Label(handler.weightOfTurn.ToString("0.0000"));
+		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+		if (GUILayout.Button("generate map"))
+        {
+			handler.regenerate(handler.startWidth, handler.startHeight);
+			handler.resetF();
+        }
+
+		if (GUILayout.Button("calculate"))
+        {
+			handler.calculate();
+			handler.drawPath();
+        }
 		GUILayout.EndHorizontal();
 	}
 }
