@@ -10,6 +10,7 @@ public class CostMapGenerator
     private float noiseScale = 0.1f;
 
     private Node[,] nodeMap;
+    private List<Node> nodeList;
     private GameObject mapSource;
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
@@ -39,11 +40,6 @@ public class CostMapGenerator
 
     public List<Node> getNodes()
     {
-        List<Node> nodeList = new List<Node>();
-        foreach(Node node in nodeMap)
-        {
-            nodeList.Add(node);
-        }
         return nodeList;
     }
 
@@ -58,6 +54,10 @@ public class CostMapGenerator
         this.height = height;
         mapSource.name = width + "x" + height + "map";
 
+        nodeMap = null;
+        nodeList = null;
+
+        nodeList = new List<Node>();
         nodeMap = new Node[width, height];
         Random.Range(0, 1);
         float offset = (Random.value * 20000) - 10000;
@@ -75,6 +75,7 @@ public class CostMapGenerator
                     cost = Mathf.PerlinNoise(x * noiseScale + offset, y * noiseScale + offset);
                 }
                 nodeMap[x, y] = new Node(position, cost);
+                nodeList.Add(nodeMap[x, y]);
             }
         }
 

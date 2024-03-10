@@ -4,6 +4,7 @@ using System;
 
 public class Node
 {
+    public static int NodeCount;
     public float g;
     public float h;
     public float f
@@ -25,6 +26,12 @@ public class Node
         this.position = position;
         this.cost = cost;
         this.neighbors = new List<Node>();
+        NodeCount++;
+    }
+
+    ~Node()
+    {
+        NodeCount--;
     }
 
     public Vector2 getPosition()

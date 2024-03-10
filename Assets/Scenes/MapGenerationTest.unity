@@ -834,7 +834,7 @@ MonoBehaviour:
   startHeight: 4
   endWidth: 50
   endHeight: 50
-  numTrials: 10
+  numTrials: 2
   terrainHeight: 3
   noise: 0
   noiseScale: 6
@@ -844,6 +844,8 @@ MonoBehaviour:
   mapLineRenderer: {fileID: 1096342721}
   isDebugging: 0
   filePath: C:/Users/timfl/Desktop/APResearchProject/Assets/data/output.csv
+  NodeCount: 0
+  firstNodeCount: 0
   weightOfCost: 2
   weightOfTurn: 0
   pe_cellWeight: 1

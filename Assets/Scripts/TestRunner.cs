@@ -39,6 +39,12 @@ public class TestRunner : MonoBehaviour
 	[SerializeField]
 	String filePath = Application.dataPath + "/data/" + "output.csv";
 
+	[SerializeField]
+	int NodeCount;
+
+	[SerializeField]
+	int firstNodeCount;
+
 	private List<Node> path;
 	private AStarAlgo aStarAlgo;
 
@@ -68,10 +74,11 @@ public class TestRunner : MonoBehaviour
 		}
 
 		writer = new StreamWriter(filePath);
-		writer.WriteLine("size,time,eval");
+		writer.WriteLine("size,nodeCount,time,eval");
 		path = null;
 		isFirst = true;
 		saveData = false;
+		NodeCount = Node.NodeCount;
 	}
 
 	private bool isFirst;
@@ -79,11 +86,13 @@ public class TestRunner : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
+		NodeCount = Node.NodeCount;
 		if(currentWidth == endWidth && currentTrial < numTrials)
 		{
 			currentTrial++;
 			currentWidth = startWidth;
 			currentHeight = startHeight;
+			firstNodeCount = NodeCount;
 		}
 		if(mapGenerator != null && path == null && currentWidth < endWidth && !isDebugging)
 		{
@@ -95,9 +104,12 @@ public class TestRunner : MonoBehaviour
 			calculate();
 			stopwatch.Stop();
 			drawPath();
-			recordData(currentWidth, stopwatch.ElapsedMilliseconds, calculateEfficiency(path));
+			if(isFirst)
+            {
+				recordData(currentWidth, stopwatch.ElapsedMilliseconds, calculateEfficiency(path));
+            }
 			path = null;
-			if(currentWidth == endWidth && currentTrial == numTrials)
+			if(currentWidth == endWidth && currentTrial >= numTrials)
             {
 				saveData = true;
             }
@@ -151,8 +163,8 @@ public class TestRunner : MonoBehaviour
 
 	public void recordData(double width, double time, double pathEfficiency)
     {
-        UnityEngine.Debug.Log(width + ", " + time + ", " + pathEfficiency);
-		writer.WriteLine(width + "," + time + "," + pathEfficiency);
+        UnityEngine.Debug.Log(width + "," + NodeCount + "," + time + "," + pathEfficiency);
+		writer.WriteLine(width + "," + NodeCount + "," + time + "," + pathEfficiency);
     }
 
 	public double pe_cellWeight = 1;

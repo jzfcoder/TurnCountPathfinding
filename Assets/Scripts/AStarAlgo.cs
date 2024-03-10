@@ -20,6 +20,7 @@ public class AStarAlgo
         List<Node> closedSet = new List<Node>();
 
         Node prevQ = startNode;
+        Node q;
         float prevDirection = 0;
         /*  1  2  3
          *   \ | /
@@ -32,7 +33,7 @@ public class AStarAlgo
 
         while(openSet.Count > 0)
         {
-            Node q = openSet[0];
+            q = openSet[0];
             for(int i = 1; i < openSet.Count; i++)
             {
                 if(openSet[i].f < q.f || openSet[i].f == q.f)
