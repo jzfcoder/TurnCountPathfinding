@@ -39,12 +39,6 @@ public class TestRunner : MonoBehaviour
 	[SerializeField]
 	String filePath = Application.dataPath + "/data/" + "output.csv";
 
-	[SerializeField]
-	int NodeCount;
-
-	[SerializeField]
-	int firstNodeCount;
-
 	private List<Node> path;
 	private AStarAlgo aStarAlgo;
 
@@ -53,7 +47,7 @@ public class TestRunner : MonoBehaviour
 	private StreamWriter writer;
 	private int currentWidth;
 	private int currentHeight;
-	private int currentTrial;
+	public int currentTrial;
 	// Start is called before the first frame update
 	void Start()
 	{
@@ -63,9 +57,8 @@ public class TestRunner : MonoBehaviour
 		stopwatch = new Stopwatch();
 		currentHeight = startHeight;
 		currentWidth = startWidth;
-		currentTrial = 1;
 
-		filePath = Application.dataPath + "/data/" + startWidth + "to" + endWidth + "noise" + (noise ? noiseScale : -1) + "turnWeight" + weightOfTurn + ".csv";
+		filePath = Application.dataPath + "/data/" + (startWidth + 1) + "to" + endWidth + "noise" + (noise ? noiseScale : -1) + "turnWeight" + weightOfTurn + "trialNumber" + currentTrial + ".csv";
 
 		if(File.Exists(filePath))
 		{
@@ -74,26 +67,28 @@ public class TestRunner : MonoBehaviour
 		}
 
 		writer = new StreamWriter(filePath);
-		writer.WriteLine("size,nodeCount,time,eval");
+		writer.WriteLine("size,time,eval");
 		path = null;
 		isFirst = true;
 		saveData = false;
-		NodeCount = Node.NodeCount;
+		started = false;
 	}
 
 	private bool isFirst;
 	private bool saveData;
+	private bool started;
 	// Update is called once per frame
 	void Update()
 	{
-		NodeCount = Node.NodeCount;
-		if(currentWidth == endWidth && currentTrial < numTrials)
-		{
-			currentTrial++;
-			currentWidth = startWidth;
-			currentHeight = startHeight;
-			firstNodeCount = NodeCount;
-		}
+		if(Input.GetKeyDown(KeyCode.P))
+        {
+			started = true;
+        }
+		if(!started)
+        {
+			// return;
+        }
+		
 		if(mapGenerator != null && path == null && currentWidth < endWidth && !isDebugging)
 		{
 			currentWidth++;
@@ -109,7 +104,7 @@ public class TestRunner : MonoBehaviour
 				recordData(currentWidth, stopwatch.ElapsedMilliseconds, calculateEfficiency(path));
             }
 			path = null;
-			if(currentWidth == endWidth && currentTrial >= numTrials)
+			if(currentWidth == endWidth)
             {
 				saveData = true;
             }
@@ -117,11 +112,25 @@ public class TestRunner : MonoBehaviour
 		if(saveData && isFirst)
         {
 			isFirst = false;
-			writer.Flush();
-			writer.Close();
-			UnityEngine.Debug.Log("ended writing successfully");
-        }
+			closeWriter();
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+#endif
+		}
 	}
+
+	public void restartTrial()
+    {
+		currentWidth = startWidth;
+		currentHeight = startHeight;
+    }
+
+	public void closeWriter()
+    {
+		writer.Flush();
+		writer.Close();
+		UnityEngine.Debug.Log("ended writing successfully");
+    }
 
 	public void resetF()
     {
@@ -135,7 +144,7 @@ public class TestRunner : MonoBehaviour
 	public float weightOfTurn = 2f;
 	public void calculate()
 	{
-		path = aStarAlgo.solve(mapGenerator.getNodes()[0], mapGenerator.getNodes()[mapGenerator.getNodes().Count - 1], weightOfCost, weightOfTurn);
+		path = aStarAlgo.solve(mapGenerator.getStart(), mapGenerator.getEnd(), weightOfCost, weightOfTurn);
 	}
 
 	public void drawPath()
@@ -147,8 +156,8 @@ public class TestRunner : MonoBehaviour
 			lineRenderer.positionCount = path.Count;
 			for(int i = 0; i < path.Count - 1; i++)
 			{
-				positions[i] = new Vector3(path[i].getPosition().x - currentWidth - 10, 0.1f, path[i].getPosition().y);
-				positions[i + 1] = new Vector3(path[i + 1].getPosition().x - currentWidth - 10, 0.1f, path[i + 1].getPosition().y);
+				positions[i] = new Vector3(path[i].getPosition().x, 0.1f, path[i].getPosition().y);
+				positions[i + 1] = new Vector3(path[i + 1].getPosition().x, 0.1f, path[i + 1].getPosition().y);
 			}
 			lineRenderer.SetPositions(positions);
 		}
@@ -163,8 +172,8 @@ public class TestRunner : MonoBehaviour
 
 	public void recordData(double width, double time, double pathEfficiency)
     {
-        UnityEngine.Debug.Log(width + "," + NodeCount + "," + time + "," + pathEfficiency);
-		writer.WriteLine(width + "," + NodeCount + "," + time + "," + pathEfficiency);
+        UnityEngine.Debug.Log(width + "," + time + "," + pathEfficiency);
+		writer.WriteLine(width + "," + time + "," + pathEfficiency);
     }
 
 	public double pe_cellWeight = 1;
@@ -224,6 +233,16 @@ class RunnerEditor : Editor
         {
 			handler.calculate();
 			handler.drawPath();
+        }
+
+		if (GUILayout.Button("restart trial"))
+        {
+			handler.restartTrial();
+        }
+
+		if (GUILayout.Button("close writer"))
+        {
+			handler.closeWriter();
         }
 		GUILayout.EndHorizontal();
 	}

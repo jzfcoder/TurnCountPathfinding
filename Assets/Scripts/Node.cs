@@ -44,6 +44,11 @@ public class Node
         return cost;
     }
 
+    public void setPosition(Vector2 position)
+    {
+        this.position = position;
+    }
+
     public void setCost(float cost)
     {
         this.cost = cost;

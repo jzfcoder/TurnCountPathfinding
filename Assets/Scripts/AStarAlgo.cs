@@ -14,14 +14,15 @@ public class AStarAlgo
         return solve(startNode, goalNode, costWeight, 0);
     }
 
+    Node prevQ, q;
+    float prevDirection, newG, currentDirection;
     public List<Node> solve(Node startNode, Node goalNode, float costWeight, float turnWeight)
     {
         List<Node> openSet = new List<Node>();
         List<Node> closedSet = new List<Node>();
 
-        Node prevQ = startNode;
-        Node q;
-        float prevDirection = 0;
+        prevQ = startNode;
+        prevDirection = 0;
         /*  1  2  3
          *   \ | /
          * 4 - n - 5
@@ -54,8 +55,8 @@ public class AStarAlgo
                 return traceback(startNode, goalNode);
             }
 
-            float newG;
-            float currentDirection = 0;
+            newG = 0;
+            currentDirection = 0;
             foreach (Node successor in q.getNeighbors())
             {
                 if (successor == null || closedSet.Contains(successor))
@@ -83,15 +84,17 @@ public class AStarAlgo
 
         return null;
     }
-    
+
+    private float xDist;
+    private float yDist;
     public float getDirection(Node prev, Node next)
     {
         if(prev == null)
         {
             return -1;
         }
-        float xDist = next.getPosition().x - prev.getPosition().x;
-        float yDist = next.getPosition().y - prev.getPosition().y;
+        xDist = next.getPosition().x - prev.getPosition().x;
+        yDist = next.getPosition().y - prev.getPosition().y;
         return Mathf.Atan(yDist / xDist);
     }
 
@@ -100,10 +103,12 @@ public class AStarAlgo
         return Mathf.Abs(dir - prevDir);
     }
 
+    List<Node> path;
+    Node current;
     private List<Node> traceback(Node startNode, Node goalNode)
     {
-        List<Node> path = new List<Node>();
-        Node current = goalNode;
+        path = new List<Node>();
+        current = goalNode;
 
         while (!current.samePosition(startNode))
         {
@@ -123,18 +128,16 @@ public class AStarAlgo
 
     private float getManhattanDistance(Node a, Node b)
     {
-        float xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
-        float yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
-        float outDist = (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
-        return outDist;
+        xDist = Mathf.Abs(a.getPosition().x - b.getPosition().x);
+        yDist = Mathf.Abs(a.getPosition().y - b.getPosition().y);
+        return (xDist + yDist) - (2 * yDist) * Mathf.Min(xDist, yDist);
     }
 
     private float getExactDistance(Node a, Node b)
     {
-        float xDist = (a.getPosition().x - b.getPosition().x);
-        float yDist = (a.getPosition().y - b.getPosition().y);
-        float outDist = Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
-        return outDist;
+        xDist = (a.getPosition().x - b.getPosition().x);
+        yDist = (a.getPosition().y - b.getPosition().y);
+        return Mathf.Sqrt((xDist * xDist) + (yDist * yDist));
     }
 
     private bool lowerFExists(List<Node> set, Node node)
@@ -149,22 +152,25 @@ public class AStarAlgo
         return false;
     }
 
+    Queue<Node> queue;
+    HashSet<Node> visited;
+    Node currentNodeF;
     public void resetF(Node start)
     {
-        Queue<Node> queue = new Queue<Node>();
-        HashSet<Node> visited = new HashSet<Node>();
+        queue = new Queue<Node>();
+        visited = new HashSet<Node>();
 
         queue.Enqueue(start);
         visited.Add(start);
 
         while(queue.Count > 0)
         {
-            Node currentNode = queue.Dequeue();
+            currentNodeF = queue.Dequeue();
 
-            currentNode.g = 0;
-            currentNode.h = 0;
+            currentNodeF.g = 0;
+            currentNodeF.h = 0;
 
-            foreach (Node n in currentNode.getNeighbors())
+            foreach (Node n in currentNodeF.getNeighbors())
             {
                 if (!visited.Contains(n))
                 {

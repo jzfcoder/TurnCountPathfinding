@@ -33,9 +33,33 @@ public class CostMapGenerator
         this.plane = plane;
         meshRenderer = mapSource.GetComponent<MeshRenderer>();
         meshFilter = mapSource.GetComponent<MeshFilter>();
-        nodeMap = new Node[width, height];
-        generateMap(width, height, noise);
-        renderMap();
+        nodeMap = new Node[100, 100];
+        nodeList = new List<Node>();
+
+        for(int x = 0; x < 100; x++)
+        {
+            for(int y = 0; y < 100; y++)
+            {
+                Vector2 position = new Vector2(x, y);
+                nodeMap[x, y] = new Node(position, 0);
+
+                GameObject cell = GameObject.Instantiate(plane, new Vector3(position.x, 0, position.y),
+                    new Quaternion(0, 0, 0, 0), mapSource.transform);
+                cell.SetActive(false);
+            }
+        }
+
+        renderMap(false);
+    }
+
+    public Node getStart()
+    {
+        return nodeMap[0, 0];
+    }
+
+    public Node getEnd()
+    {
+        return nodeMap[width - 1, height - 1];
     }
 
     public List<Node> getNodes()
@@ -54,11 +78,8 @@ public class CostMapGenerator
         this.height = height;
         mapSource.name = width + "x" + height + "map";
 
-        nodeMap = null;
         nodeList = null;
-
         nodeList = new List<Node>();
-        nodeMap = new Node[width, height];
         Random.Range(0, 1);
         float offset = (Random.value * 20000) - 10000;
 
@@ -66,7 +87,6 @@ public class CostMapGenerator
         {
             for(int y = 0; y < height; y++)
             {
-                Vector2 position = new Vector2(x, y);
                 float cost;
                 if(!noise)
                 {
@@ -74,7 +94,7 @@ public class CostMapGenerator
                 } else {
                     cost = Mathf.PerlinNoise(x * noiseScale + offset, y * noiseScale + offset);
                 }
-                nodeMap[x, y] = new Node(position, cost);
+                nodeMap[x, y].setCost(cost);
                 nodeList.Add(nodeMap[x, y]);
             }
         }
@@ -144,25 +164,21 @@ public class CostMapGenerator
 
     private void renderGrid()
     {
-        List<Node> nodes = getNodes();
-        if (nodes.Count == 0) return;
-
+        GameObject cell;
+        MeshRenderer renderer;
+        float cost;
         foreach (Transform child in mapSource.transform)
         {
-            GameObject.Destroy(child.gameObject);
-        }
-
-        foreach (Node n in nodes)
-        {
-            if (n == null) continue;
-            GameObject cell = GameObject.Instantiate(plane, new Vector3(
-                n.getPosition().x - width - 10,
-                0,
-                n.getPosition().y
-                ), new Quaternion(0, 0, 0, 0), mapSource.transform);
-            MeshRenderer renderer = cell.GetComponent<MeshRenderer>();
-            renderer.material.SetColor("_Color", new Color(1 - n.getCost(), 1 - n.getCost(), 1 - n.getCost()));
-            cell.SetActive(true);
+            cell = child.gameObject;
+            if(child.transform.position.x < width && child.transform.position.z < height)
+            {
+                renderer = cell.GetComponent<MeshRenderer>();
+                cost = nodeMap[(int) child.transform.position.x, (int) child.transform.position.z].getCost();
+                renderer.material.SetColor("_Color", new Color(1 - cost, 1 - cost, 1 - cost));
+                cell.SetActive(true);
+            } else {
+                cell.SetActive(false);
+            }
         }
     }
 
