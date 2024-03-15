@@ -126,7 +126,7 @@ public class TestSceneHandler : MonoBehaviour
 
 	public void recordData(int width, double time, double pathEfficiency)
     {
-		StreamWriter writer = new StreamWriter(dataPath);
+		StreamWriter writer = new StreamWriter(dataPath, true);
 		writer.WriteLine(width + "," + time + "," + pathEfficiency);
 		writer.Flush();
 		writer.Close();
