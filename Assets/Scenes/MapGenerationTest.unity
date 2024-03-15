@@ -664,7 +664,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1096342720
 Transform:
   m_ObjectHideFlags: 0
@@ -794,6 +794,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1319836871}
   - component: {fileID: 1319836873}
+  - component: {fileID: 1319836874}
   m_Layer: 0
   m_Name: Handler
   m_TagString: Untagged
@@ -825,7 +826,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1319836870}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f2d34d2327e3ed458c4cfc686d1d74f, type: 3}
   m_Name: 
@@ -850,3 +851,36 @@ MonoBehaviour:
   pe_cellWeight: 1
   pe_costWeight: 1
   pe_turnWeight: 1
+--- !u!114 &1319836874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1319836870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9d480cdca3469f4faa1e2f611feb969, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startWidth: 4
+  startHeight: 4
+  endWidth: 50
+  endHeight: 50
+  numTrials: 3
+  currentWidth: 0
+  currentHeight: 0
+  currentTrial: 0
+  cellEvalWeight: 0
+  costEvalWeight: 0
+  turnEvalWeight: 0
+  weightOfCost: 0
+  weightOfTurn: 0
+  noise: 0
+  noiseScale: 0
+  mapSource: {fileID: 591361638}
+  tile: {fileID: 935865435}
+  lineRenderer: {fileID: 270686293}
+  mapLineRenderer: {fileID: 1096342721}
+  configPath: C:/Users/timfl/Desktop/APResearchProject/Assets/config.json
+  dataPath: 

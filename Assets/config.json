@@ -1,0 +1,17 @@
+{
+    "startWidth": 4,
+    "startHeight": 4,
+    "endWidth": 50,
+    "endHeight": 50,
+    "numTrials": 3,
+    "currentWidth": 0,
+    "currentHeight": 0,
+    "currentTrial": 0,
+    "cellEvalWeight": 0.0,
+    "costEvalWeight": 0.0,
+    "turnEvalWeight": 0.0,
+    "weightOfCost": 0.0,
+    "weightOfTurn": 0.0,
+    "noise": false,
+    "noiseScale": 0
+}

@@ -48,8 +48,6 @@ public class CostMapGenerator
                 cell.SetActive(false);
             }
         }
-
-        renderMap(false);
     }
 
     public Node getStart()
